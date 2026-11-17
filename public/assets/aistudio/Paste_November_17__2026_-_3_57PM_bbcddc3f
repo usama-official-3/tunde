@@ -1,0 +1,1016 @@
+TUNDE AI
+AI Receptionist & Appointment Booking Platform for Auto Repair Shops
+Product Development Requirements — Version 1.0
+
+1. Product Overview
+Tunde AI is an AI-powered receptionist platform specifically designed for automotive repair shops, collision centers, tire shops, and other automotive service businesses.
+
+The purpose of Tunde AI is simple: Help automotive businesses stop losing potential customers because of missed phone calls.
+
+When a customer calls an auto repair shop and nobody answers, there is a significant risk that the customer will hang up and call another shop.
+
+We want to solve this problem by creating an intelligent, human-sounding AI receptionist that can automatically answer incoming calls, communicate naturally with customers, collect vehicle and service information, schedule appointments, and notify the business owner.
+
+Our marketing will highlight that missed calls can potentially represent tens of thousands of dollars in lost monthly revenue for high-volume shops. The often-mentioned $50,000 figure is a potential scenario, not a verified industry average.
+
+The ultimate goal is to build a platform that acts like a real, professional service advisor working 24/7.
+
+The software must be reliable, easy to use, highly customizable, and scalable to thousands of automotive businesses.
+
+2. AI Phone Answering System
+This is the most important feature of the entire platform.
+
+The AI receptionist must be capable of answering incoming customer phone calls whenever the shop cannot answer.
+
+Phone connectivity requirements:
+
+Integrate with existing shop landline numbers.
+
+Integrate with business cell phone numbers.
+
+Support traditional business phone systems and VoIP systems.
+
+Allow shops to keep their existing phone numbers whenever technically possible.
+
+Support conditional call forwarding when the shop doesn't answer.
+
+Support forwarding when the line is busy.
+
+Allow owners to activate AI answering outside business hours.
+
+Offer optional 24/7 AI answering.
+
+Support a dedicated Tunde AI phone number when needed.
+
+The system should be designed to work with telecommunications providers such as Twilio or equivalent services.
+
+Important: The AI should not automatically answer every call unless the business owner enables that setting.
+
+Owners must be able to choose when and how the AI answers.
+
+3. Human-Like AI Voice & Conversation
+The AI must sound as close to a real human receptionist as possible.
+
+We do not want a robotic voice or a traditional automated phone menu.
+
+The AI must:
+
+Speak naturally, with realistic pacing and intonation.
+
+Understand different accents and speaking styles.
+
+Recognize automotive terminology.
+
+Respond naturally to unexpected questions.
+
+Allow customers to interrupt without losing the conversation.
+
+Handle pauses and conversational changes.
+
+Ask follow-up questions when information is unclear.
+
+Remember information provided earlier during the same call.
+
+Avoid repeating questions unnecessarily.
+
+Maintain a friendly and professional tone.
+
+Minimize response latency so the conversation feels immediate.
+
+For example, if someone calls and says:
+
+"Hey, my 2018 BMW 330i is making a weird grinding noise whenever I brake. Can I bring it in tomorrow?"
+
+The AI should understand that:
+
+The vehicle is a 2018 BMW 330i.
+
+The customer is experiencing a grinding noise when braking.
+
+The customer wants to schedule an appointment.
+
+The requested appointment is for tomorrow.
+
+The AI should then check the shop's actual scheduling availability and offer available appointment times.
+
+The AI must never invent appointment availability or confirm an appointment that has not been successfully booked.
+
+4. Customer Information & Vehicle Data Collection
+The AI must be able to collect important customer and vehicle information during phone calls.
+
+Required fields:
+
+Customer information
+
+First and last name
+
+Phone number
+
+Email address
+
+New or returning customer
+
+Vehicle information
+
+Year
+
+Make
+
+Model
+
+Trim, if relevant
+
+Mileage, if available
+
+VIN, if needed
+
+Service information
+
+Reason for calling
+
+Customer's description of the problem
+
+Requested service
+
+Preferred appointment date
+
+Preferred appointment time
+
+Whether the vehicle is drivable, when relevant
+
+The AI should collect this information conversationally, not by reading a rigid questionnaire.
+
+For example, if the customer already says they have a 2020 Toyota Camry, the AI should not ask them for the year, make, and model again.
+
+If the customer does not know a particular detail, the AI should continue without getting stuck.
+
+All collected information must automatically be saved to the appropriate customer record in the shop's dashboard.
+
+5. Appointment Scheduling & Calendar Integration
+Tunde AI needs a fully functioning appointment scheduling system.
+
+The AI should be capable of booking appointments directly during customer calls.
+
+Requirements:
+
+Real-time appointment availability.
+
+Shop-specific business hours.
+
+Holiday and closure settings.
+
+Configurable appointment durations.
+
+Different appointment categories.
+
+Maximum appointments per time slot.
+
+Different scheduling rules for different shops.
+
+Appointment rescheduling.
+
+Appointment cancellation.
+
+Calendar integration.
+
+Prevention of double bookings.
+
+The AI must understand relative dates.
+
+For example:
+
+Customer: "Can I come in next Friday?"
+
+The AI must know the current date in the shop's local time zone, determine which date the customer means, and check availability for that date.
+
+If the requested time is unavailable, it should suggest alternatives.
+
+Appointment categories could include:
+
+Oil changes
+
+Brake inspections
+
+Check engine light diagnostics
+
+General diagnostics
+
+Tire services
+
+Collision estimates
+
+Air conditioning services
+
+Scheduled maintenance
+
+Other customer concerns
+
+Owners should be able to create their own appointment categories and rules.
+
+The system should support Google Calendar and Microsoft Outlook integration, with automotive shop management integrations added as the platform develops.
+
+For automotive-specific integrations, we should investigate Tekmetric, Shopmonkey, Mitchell 1, and other major platforms.
+
+Where an integration is unavailable, Tunde AI should still provide its own internal scheduling calendar.
+
+6. Appointment Confirmations & Customer Notifications
+After successfully booking an appointment, the system must automatically send the customer confirmation details.
+
+Email confirmation requirements:
+
+Shop name
+
+Customer name
+
+Appointment date
+
+Appointment time
+
+Vehicle information
+
+Service requested
+
+Shop address
+
+Shop phone number
+
+Any instructions the shop wants to include
+
+I also want optional SMS confirmations and reminders.
+
+The business owner should be able to configure:
+
+Confirmation emails
+
+Confirmation text messages
+
+24-hour appointment reminders
+
+Same-day reminders
+
+Cancellation notifications
+
+Rescheduling notifications
+
+All communication should be branded with the specific shop's information, not just Tunde AI.
+
+The AI must confirm the customer's email address accurately before sending important information.
+
+7. Live Call Transfer & Human Escalation
+The AI should be able to transfer calls to a real employee when necessary.
+
+For example:
+
+Customer: "Can I speak with the manager?"
+
+AI: "Absolutely. Let me see if someone is available to help you."
+
+The system should attempt to transfer the call to the designated employee or shop phone number.
+
+Requirements:
+
+Configurable transfer phone numbers.
+
+Different transfer destinations for different situations.
+
+Transfer during business hours.
+
+Transfer for urgent customer concerns.
+
+Transfer for customers specifically requesting a person.
+
+Transfer when the AI cannot answer confidently.
+
+Ideally, the system should check whether the employee accepts the call before completing the transfer.
+
+If nobody answers, the AI should return to the customer and offer to take a message.
+
+8. Callback Requests & Owner Notifications
+If the AI cannot resolve the customer's request or transfer the call, it must create a callback task.
+
+The callback record should include:
+
+Customer name
+
+Phone number
+
+Reason for calling
+
+Vehicle information, if available
+
+Call date and time
+
+Urgency
+
+AI-generated call summary
+
+The shop owner or designated employee should receive a notification.
+
+Examples:
+
+"John Smith called about a transmission issue on his 2017 Ford F-150. He requested a callback."
+
+The dashboard should include a callback management section with statuses such as:
+
+Pending
+
+In progress
+
+Completed
+
+Owners should be able to assign callbacks to employees and mark them completed.
+
+Urgent requests should be highlighted appropriately.
+
+9. Business Owner Dashboard
+Every business subscribing to Tunde AI must receive its own secure dashboard.
+
+The dashboard should be accessible through a professional website using individual login credentials.
+
+Each business must have its own isolated data, phone settings, AI agent, appointments, recordings, and reports.
+
+Dashboard homepage should display:
+
+Total incoming calls
+
+Calls answered by AI
+
+Missed calls recovered by AI
+
+Appointments booked
+
+Appointments canceled
+
+Appointments rescheduled
+
+Callback requests
+
+Calls transferred to employees
+
+New customer inquiries
+
+Returning customer inquiries
+
+Average call duration
+
+Appointment conversion rate
+
+The dashboard should be visually attractive, modern, and easy to understand.
+
+Owners should be able to filter information by:
+
+Today
+
+Yesterday
+
+Last 7 days
+
+Last 30 days
+
+Custom date range
+
+I want business owners to log in and immediately understand how much work Tunde AI is doing for their shop.
+
+10. Detailed Analytics & Revenue Reporting
+Analytics will be a major selling point of Tunde AI.
+
+I want the dashboard to demonstrate the business value the AI provides.
+
+Important metrics:
+
+Total calls handled by AI.
+
+Calls that would otherwise have gone unanswered, based on forwarding events or available call-system data.
+
+Total appointments booked.
+
+Appointment conversion percentage.
+
+Number of new customer inquiries.
+
+Most common services requested.
+
+Most common call times.
+
+Average call duration.
+
+Calls requiring human assistance.
+
+Estimated revenue opportunity from booked appointments.
+
+Revenue reporting:
+
+The dashboard should allow owners to enter an average repair order value.
+
+For example:
+
+Average repair order: $650
+
+Appointments booked by AI: 40
+
+Estimated appointment opportunity: $26,000
+
+This figure must be labeled as an estimate, not actual revenue.
+
+Actual revenue attribution should only be reported when verified through completed repair orders or connected shop management systems.
+
+The system should also distinguish between all AI-booked appointments and calls genuinely recovered from an unanswered-call scenario.
+
+I want reports to be available daily, weekly, and monthly.
+
+Reports should be exportable as PDF or CSV files.
+
+11. Call Recording, Transcripts & Summaries
+I want shop owners to be able to review the calls handled by their AI receptionist.
+
+Requirements:
+
+Call recording when legally permitted and properly disclosed.
+
+Audio playback inside the dashboard.
+
+Automatic speech-to-text transcription.
+
+AI-generated call summaries.
+
+Searchable call history.
+
+Customer name and phone number.
+
+Call date and time.
+
+Call duration.
+
+Appointment outcome.
+
+Callback status.
+
+Each call should have a dedicated detail page.
+
+For example:
+
+Caller: Michael Johnson
+Vehicle: 2021 Honda Accord
+Reason: Check engine light
+Outcome: Appointment booked
+Appointment: November 16 at 9:00 AM
+
+The owner should be able to play the recording and read the full transcript.
+
+Recording consent, retention, and access controls must be built into the system. Since California and other jurisdictions have strict call-recording requirements, the platform must support legally appropriate disclosures and consent handling.
+
+12. Customizable AI Agents
+This is another critical feature.
+
+Every shop should be able to customize its AI receptionist.
+
+Agent customization options:
+
+Agent name
+
+Voice selection
+
+Male or female voice options
+
+Speaking style
+
+Greeting message
+
+Tone and personality
+
+Business hours
+
+Transfer preferences
+
+Scheduling behavior
+
+Custom instructions
+
+For example, one shop might want its AI named Sarah.
+
+Another shop might want its AI named Jessica.
+
+The owner should be able to configure the agent's greeting:
+
+"Thank you for calling Hyperion Auto Repair. This is Sarah. How can I help you today?"
+
+The system must support different voice options, ideally with realistic, high-quality speech.
+
+13. Custom AI Prompts & Talk Tracks
+I need a powerful AI configuration system that allows us to customize how each agent communicates.
+
+This is extremely important.
+
+There should be two levels of customization:
+
+Business owner controls
+
+The owner should be able to customize:
+
+Greeting
+
+Common questions
+
+Business information
+
+Services offered
+
+Services not offered
+
+Scheduling instructions
+
+Transfer instructions
+
+Pricing policies
+
+Special announcements
+
+How the AI handles specific customer requests
+
+Tunde AI administrator controls
+
+I want an internal administrative system where my team and I can directly configure and edit each customer's AI agent.
+
+We should be able to:
+
+Edit the agent's full system prompt.
+
+Add custom instructions.
+
+Create custom conversation workflows.
+
+Set required questions.
+
+Add or modify business-specific information.
+
+Configure fallback responses.
+
+Test changes before publishing them.
+
+Review prompt version history.
+
+Roll back changes if needed.
+
+For example, I might configure an agent with:
+
+"Always ask customers for their vehicle's year, make, and model before scheduling. Never quote exact repair prices unless the shop has approved them. If a customer requests the owner, attempt a transfer. If the transfer fails, create a callback request."
+
+The system should follow these instructions consistently.
+
+However, custom prompts must not override critical safeguards such as scheduling verification, customer privacy, recording consent, or accurate appointment confirmation.
+
+14. Shop Knowledge Base
+Every shop should have a dedicated knowledge base that the AI uses to answer questions accurately.
+
+Owners should be able to enter:
+
+Shop name
+
+Address
+
+Business hours
+
+Holiday hours
+
+Phone number
+
+Website
+
+Services offered
+
+Services not offered
+
+Vehicle makes serviced
+
+Warranty information
+
+Diagnostic fees
+
+Inspection policies
+
+Payment methods
+
+Financing options
+
+Towing information
+
+Frequently asked questions
+
+For example:
+
+Customer: "Do you guys work on European vehicles?"
+
+If the shop's knowledge base says it services BMW, Mercedes-Benz, Audi, and Volkswagen, the AI should answer accordingly.
+
+If the answer is not available, the AI should avoid guessing and offer to have an employee follow up.
+
+15. Tunde AI Website & Customer Accounts
+I also need a professional public-facing website for Tunde AI.
+
+The website should serve as both a marketing platform and the login portal for subscribers.
+
+Public website pages:
+
+Homepage
+
+Features
+
+How It Works
+
+Pricing
+
+Book a Demo
+
+Frequently Asked Questions
+
+Contact Us
+
+Login / Sign Up
+
+The website should communicate that Tunde AI helps automotive businesses answer more calls, capture more appointments, and reduce lost opportunities.
+
+I would like an interactive demo where potential customers can experience an example AI receptionist before subscribing.
+
+Customer account features:
+
+Secure registration and login
+
+Business profile setup
+
+Phone configuration
+
+AI agent configuration
+
+Appointment calendar
+
+Call history
+
+Analytics
+
+Billing and subscriptions
+
+Team member management
+
+Notification settings
+
+The website and dashboard must be responsive and work properly on desktops, tablets, and mobile phones.
+
+16. Tunde AI Internal Admin Dashboard
+I need a separate administrator dashboard for managing the entire business.
+
+This dashboard should not be accessible to regular subscribers.
+
+Administrator features:
+
+View all subscribed businesses.
+
+Create and manage customer accounts.
+
+Configure individual AI agents.
+
+Edit customer prompts and talk tracks.
+
+View customer subscription status.
+
+Review call volume and usage.
+
+Monitor AI performance.
+
+Troubleshoot failed calls and integrations.
+
+Manage billing plans.
+
+Suspend or reactivate accounts.
+
+View platform-wide analytics.
+
+Access customer support tools.
+
+We need to be able to manage multiple shops efficiently without manually modifying code for every customer.
+
+Admin access to customer recordings and transcripts must be permission-controlled and auditable.
+
+17. Multi-Location Support
+The platform should eventually support customers operating multiple automotive businesses.
+
+For example, an owner with five shops should be able to manage all five locations under one account.
+
+Each location should have its own:
+
+Phone number
+
+AI receptionist
+
+Business hours
+
+Appointment calendar
+
+Knowledge base
+
+Call history
+
+Analytics
+
+The owner should also have an option to view consolidated performance across all locations.
+
+18. Security, Reliability & Technical Requirements
+This platform will be handling real customer calls and personal information, so reliability and security are essential.
+
+Technical expectations:
+
+Secure authentication and role-based permissions.
+
+Strong separation of customer data between shops.
+
+Encryption of sensitive information.
+
+Secure storage for recordings and transcripts.
+
+Configurable data retention and deletion.
+
+Reliable call routing and transfer handling.
+
+Monitoring for failed calls and AI errors.
+
+Error logging and system alerts.
+
+Backup and disaster recovery procedures.
+
+Scalable infrastructure.
+
+Proper handling of customer privacy and consent.
+
+We should also implement safeguards for:
+
+AI misunderstanding customer details.
+
+Incorrect vehicle information.
+
+Invalid appointment dates.
+
+Calendar integration failures.
+
+Duplicate bookings.
+
+Unexpected customer requests.
+
+Poor audio quality.
+
+Calls disconnected unexpectedly.
+
+The AI must have a reliable fallback process rather than inventing information.
+
+19. Suggested Technology Architecture
+I am open to the developer's recommendations, but the system should be designed with scalability and low latency in mind.
+
+Potential components:
+
+Telephony: Twilio or equivalent business phone infrastructure.
+
+AI conversation: A real-time voice AI model or specialized conversational voice platform.
+
+Speech recognition: High-quality streaming speech-to-text with strong automotive terminology recognition.
+
+Voice generation: Realistic low-latency text-to-speech.
+
+Backend: A scalable API and application server.
+
+Database: PostgreSQL or equivalent relational database.
+
+Frontend: A modern responsive web framework such as Next.js.
+
+Authentication: Secure multi-tenant account authentication.
+
+Payments: Stripe subscriptions and usage-based billing.
+
+Email: A transactional email provider.
+
+SMS: A messaging provider supporting customer notifications and consent management.
+
+Calendar: Google Calendar, Microsoft Outlook, and an internal appointment system.
+
+I want the developer to recommend the best architecture based on performance, reliability, cost per call minute, and long-term scalability.
+
+We should avoid building unnecessary infrastructure from scratch when reliable third-party services can provide it.
+
+20. Development Priorities
+I want this developed in phases so we can launch, test it with real shops, and improve it.
+
+Phase 1 — Functional MVP
+
+The initial release must include:
+
+AI answering incoming forwarded calls.
+
+Natural, human-like conversations.
+
+Customer and vehicle information collection.
+
+Appointment scheduling.
+
+Email confirmations.
+
+Basic call transfers.
+
+Callback requests.
+
+Customer login and dashboard.
+
+Call recordings and transcripts with consent controls.
+
+AI agent name and greeting customization.
+
+Admin-controlled custom prompts.
+
+Basic reporting and call analytics.
+
+Business knowledge base.
+
+Reliable time-zone-aware date handling.
+
+The MVP should be tested using real automotive shop scenarios before public launch.
+
+Phase 2 — Advanced Features
+
+After the MVP is stable:
+
+SMS confirmations and reminders.
+
+More advanced AI customization.
+
+Improved analytics and revenue attribution.
+
+Multi-location management.
+
+Additional calendar integrations.
+
+Automotive shop management software integrations.
+
+Advanced call routing.
+
+Expanded reporting.
+
+More voice options.
+
+Team management and permissions.
+
+Phase 3 — Scale & Automation
+
+Future capabilities:
+
+Deeper integration with automotive management systems.
+
+Customer recognition from prior calls.
+
+Service history lookup where authorized.
+
+Automated follow-up campaigns.
+
+Appointment no-show follow-ups.
+
+Customer reactivation workflows.
+
+Advanced service advisor assistance.
+
+Enterprise reporting.
+
+Franchise and multi-location support.
+
+21. Example Customer Call
+Here is an example of how the AI should function.
+
+AI: "Thank you for calling Hyperion Auto Repair. This is Sarah. How can I help you today?"
+
+Customer: "Hey, I have a 2020 BMW 330i and my check engine light just came on."
+
+AI: "I can help you get that checked out. Is the light flashing or staying on steadily?"
+
+Customer: "It's staying on."
+
+AI: "Thanks for confirming. Would you like me to check our availability for a diagnostic appointment?"
+
+Customer: "Yeah, can I come in tomorrow morning?"
+
+AI: "Let me check tomorrow morning's availability."
+
+The AI checks the actual appointment calendar.
+
+AI: "We have an opening at 9:30 AM. Would that work for you?"
+
+Customer: "Yeah, that's perfect."
+
+AI: "Great. Can I get your first and last name and the best email address for your confirmation?"
+
+Customer: "Michael Johnson. My email is michael@example.com."
+
+AI: "Thank you. Let me confirm your appointment."
+
+The system saves the appointment successfully.
+
+AI: "You're confirmed for tomorrow at 9:30 AM for a check engine light diagnostic on your 2020 BMW 330i. I've sent your confirmation email. Is there anything else I can help you with?"
+
+Customer: "No, that's it."
+
+AI: "Perfect. We look forward to seeing you tomorrow. Have a great day!"
+
+The system should automatically:
+
+Save the customer information.
+
+Save the vehicle information.
+
+Create the appointment.
+
+Send the confirmation email.
+
+Save the call recording and transcript, subject to recording consent.
+
+Generate a call summary.
+
+Update the business dashboard.
+
+Update appointment analytics.
+
+The AI should also recognize urgent safety concerns. For example, a flashing check engine light or a severe brake problem should trigger an appropriate safety-oriented response rather than a routine booking script.
+
+22. Testing & Acceptance Criteria
+Before launch, I want the developer to demonstrate that the system can reliably complete the following scenarios:
+
+Answer a call forwarded from a shop's existing number.
+
+Understand customers speaking naturally rather than following a script.
+
+Collect accurate vehicle and contact details.
+
+Interpret dates such as "tomorrow," "next Monday," and "the Friday after next."
+
+Check real calendar availability.
+
+Book an appointment without creating a duplicate.
+
+Send a valid confirmation email.
+
+Transfer a customer to a live employee.
+
+Create a callback task when nobody answers.
+
+Correctly handle a customer who changes their mind mid-conversation.
+
+Recover gracefully when a customer provides unclear information.
+
+Save recordings, transcripts, and summaries.
+
+Display accurate dashboard statistics.
+
+Apply custom shop-specific instructions.
+
+Prevent one shop from accessing another shop's information.
+
+We should test calls with background noise, different accents, interruptions, automotive terminology, and real customer questions.
+
+I also want performance testing for response latency, call failures, appointment booking accuracy, and estimated infrastructure cost per call minute.
+
+23. What I Need From the Developer
+Before development begins, I want a detailed proposal covering:
+
+Recommended technology stack and AI voice provider.
+
+How existing cell phones and landlines will connect.
+
+Architecture for real-time calls and appointment scheduling.
+
+Design mockups for the public website and dashboard.
+
+Database structure and account separation.
+
+Proposed integrations.
+
+MVP development timeline with milestones.
+
+Total development cost and payment milestones.
+
+Estimated monthly operating costs, including cost per AI call minute.
+
+Expected hosting, AI, telephony, email, and storage expenses.
+
+Testing and quality assurance plan.
+
+Ownership of source code, infrastructure, and customer data.
+
+Post-launch maintenance and support arrangements.
+
+Final Product Vision
+
+I want Tunde AI to become the go-to AI receptionist platform for the automotive repair industry.
+
+It should feel like hiring a professional receptionist who works 24 hours a day, seven days a week, never misses a scheduled shift, understands automotive service requests, and helps the business convert more phone calls into booked appointments.
+
+The platform should be simple enough that a shop owner with no technical experience can set up their AI receptionist, customize it, connect their phone number, and begin receiving appointments.
+
+The two most important outcomes are:
+
+For the customer: A natural, helpful phone conversation with an appointment booked correctly.
+
+For the shop owner: Fewer unanswered opportunities, less time spent answering routine calls, and clear reporting showing the value the AI provides.
+
+I want to build this as a serious, scalable SaaS company, not just a basic AI phone bot.

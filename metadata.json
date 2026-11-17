@@ -1,0 +1,6 @@
+{
+  "name": "Tunde AI",
+  "description": "AI receptionist and appointment booking SaaS platform built for automotive repair shops, collision centers, tire shops, and multi-location auto service businesses.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

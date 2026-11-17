@@ -1,0 +1,268 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated shop owner, staff, or admin profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
+        "displayName": { "type": "string", "maxLength": 120 },
+        "businessId": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["owner", "staff", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "displayName", "businessId", "role", "createdAt", "updatedAt"]
+    },
+    "Business": {
+      "title": "Business",
+      "description": "Multi-tenant automotive repair business account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 160 },
+        "ownerName": { "type": "string", "maxLength": 120 },
+        "ownerEmail": { "type": "string", "format": "email", "maxLength": 200 },
+        "plan": { "type": "string", "enum": ["Starter", "Growth", "Multi-Shop"] },
+        "status": { "type": "string", "enum": ["Active", "Suspended", "Onboarding"] },
+        "retentionDays": { "type": "integer" },
+        "aroValue": { "type": "number" },
+        "onboardingCompleted": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerUid", "name", "ownerName", "ownerEmail", "plan", "status", "retentionDays", "aroValue", "onboardingCompleted", "createdAt", "updatedAt"]
+    },
+    "Location": {
+      "title": "Location",
+      "description": "Shop location with bay count, hours, and Twilio phone mapping",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "businessId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 160 },
+        "address": { "type": "string", "maxLength": 240 },
+        "city": { "type": "string", "maxLength": 100 },
+        "state": { "type": "string", "maxLength": 40 },
+        "zip": { "type": "string", "maxLength": 20 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "aiPhoneNumber": { "type": "string", "maxLength": 40 },
+        "timezone": { "type": "string", "maxLength": 80 },
+        "bayCount": { "type": "integer" },
+        "slotDurationMinutes": { "type": "integer" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerUid", "businessId", "name", "address", "phone", "timezone", "bayCount", "slotDurationMinutes", "isActive", "createdAt", "updatedAt"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Automotive shop customer profile (PII)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "locationId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 120 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "email": { "type": "string", "maxLength": 200 },
+        "status": { "type": "string", "enum": ["New", "Returning"] },
+        "preferredContact": { "type": "string", "enum": ["SMS", "Email", "Phone"] },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerUid", "locationId", "name", "phone", "status", "preferredContact", "createdAt", "updatedAt"]
+    },
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "Customer vehicle linked to a customer record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "locationId": { "type": "string", "maxLength": 128 },
+        "year": { "type": "integer" },
+        "make": { "type": "string", "maxLength": 80 },
+        "model": { "type": "string", "maxLength": 80 },
+        "trim": { "type": "string", "maxLength": 80 },
+        "mileage": { "type": "integer" },
+        "vin": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerUid", "customerId", "locationId", "year", "make", "model", "createdAt", "updatedAt"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Conflict-checked shop service bay appointment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "locationId": { "type": "string", "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "customerPhone": { "type": "string", "maxLength": 40 },
+        "vehicleId": { "type": "string", "maxLength": 128 },
+        "vehicleLabel": { "type": "string", "maxLength": 160 },
+        "category": { "type": "string", "maxLength": 100 },
+        "date": { "type": "string", "maxLength": 20 },
+        "time": { "type": "string", "maxLength": 20 },
+        "durationMinutes": { "type": "integer" },
+        "assignedEmployeeId": { "type": "string", "maxLength": 128 },
+        "assignedEmployeeName": { "type": "string", "maxLength": 120 },
+        "status": { "type": "string", "enum": ["Scheduled", "Confirmed", "In Bay", "Completed", "Cancelled", "Rescheduled"] },
+        "source": { "type": "string", "enum": ["AI", "Manual"] },
+        "internalNotes": { "type": "string", "maxLength": 1500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerUid", "locationId", "customerId", "customerName", "vehicleId", "category", "date", "time", "durationMinutes", "status", "source", "createdAt", "updatedAt"]
+    },
+    "CallRecord": {
+      "title": "CallRecord",
+      "description": "Recorded inbound or simulated AI receptionist call",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "locationId": { "type": "string", "maxLength": 128 },
+        "callerName": { "type": "string", "maxLength": 120 },
+        "phoneNumber": { "type": "string", "maxLength": 40 },
+        "date": { "type": "string", "maxLength": 20 },
+        "time": { "type": "string", "maxLength": 20 },
+        "durationSeconds": { "type": "integer" },
+        "status": { "type": "string", "enum": ["Answered", "Missed", "Transferred", "Failed"] },
+        "aiReceptionistName": { "type": "string", "maxLength": 80 },
+        "outcome": { "type": "string", "enum": ["Booked", "Rescheduled", "Cancelled", "Inquiry Only", "Callback Required"] },
+        "callbackStatus": { "type": "string", "enum": ["None", "Pending", "In Progress", "Completed"] },
+        "recordingAvailable": { "type": "boolean" },
+        "recordingSid": { "type": "string", "maxLength": 128 },
+        "recordingConsent": { "type": "string", "maxLength": 80 },
+        "serviceRequest": { "type": "string", "maxLength": 240 },
+        "aiSummary": { "type": "string", "maxLength": 2000 },
+        "recoveredMissedCall": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerUid", "locationId", "callerName", "phoneNumber", "date", "time", "durationSeconds", "status", "outcome", "recordingAvailable", "createdAt", "updatedAt"]
+    },
+    "CallbackTask": {
+      "title": "CallbackTask",
+      "description": "Follow-up callback task created when transfer fails or advisor needed",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "locationId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "vehicleLabel": { "type": "string", "maxLength": 160 },
+        "reason": { "type": "string", "maxLength": 500 },
+        "aiCallSummary": { "type": "string", "maxLength": 1500 },
+        "urgency": { "type": "string", "enum": ["Normal", "High", "Urgent"] },
+        "status": { "type": "string", "enum": ["Pending", "In Progress", "Completed"] },
+        "assignedEmployeeId": { "type": "string", "maxLength": 128 },
+        "assignedEmployeeName": { "type": "string", "maxLength": 120 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerUid", "locationId", "customerName", "phone", "reason", "urgency", "status", "createdAt", "updatedAt"]
+    },
+    "TenantDocument": {
+      "title": "TenantDocument",
+      "description": "Structured business sub-resource (agent, knowledge, team, settings, prompt)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerUid", "createdAt", "updatedAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable compliance and recording-access audit event",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "actorUid": { "type": "string", "maxLength": 128 },
+        "actor": { "type": "string", "maxLength": 160 },
+        "actorRole": { "type": "string", "enum": ["Super Admin", "Shop Owner", "Service Manager"] },
+        "action": { "type": "string", "maxLength": 200 },
+        "resource": { "type": "string", "maxLength": 200 },
+        "businessId": { "type": "string", "maxLength": 128 },
+        "businessName": { "type": "string", "maxLength": 160 },
+        "accessReason": { "type": "string", "maxLength": 500 },
+        "changesSummary": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "actorUid", "actor", "actorRole", "action", "resource", "businessId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profiles isolated by UID"
+    },
+    "/businesses/{businessId}": {
+      "schema": { "$ref": "#/entities/Business" },
+      "description": "Multi-tenant business documents"
+    },
+    "/businesses/{businessId}/locations/{locationId}": {
+      "schema": { "$ref": "#/entities/Location" },
+      "description": "Shop locations per business"
+    },
+    "/businesses/{businessId}/customers/{customerId}": {
+      "schema": { "$ref": "#/entities/Customer" },
+      "description": "Customers per business"
+    },
+    "/businesses/{businessId}/vehicles/{vehicleId}": {
+      "schema": { "$ref": "#/entities/Vehicle" },
+      "description": "Vehicles per business"
+    },
+    "/businesses/{businessId}/appointments/{appointmentId}": {
+      "schema": { "$ref": "#/entities/Appointment" },
+      "description": "Appointments per business"
+    },
+    "/businesses/{businessId}/calls/{callId}": {
+      "schema": { "$ref": "#/entities/CallRecord" },
+      "description": "Calls & recordings per business"
+    },
+    "/businesses/{businessId}/callbacks/{callbackId}": {
+      "schema": { "$ref": "#/entities/CallbackTask" },
+      "description": "Callback tasks per business"
+    },
+    "/businesses/{businessId}/agents/{agentId}": {
+      "schema": { "$ref": "#/entities/TenantDocument" },
+      "description": "AI Receptionist configurations per business"
+    },
+    "/businesses/{businessId}/knowledge/{kbId}": {
+      "schema": { "$ref": "#/entities/TenantDocument" },
+      "description": "Knowledge Base per business"
+    },
+    "/businesses/{businessId}/team/{memberId}": {
+      "schema": { "$ref": "#/entities/TenantDocument" },
+      "description": "Team directory per business"
+    },
+    "/businesses/{businessId}/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/TenantDocument" },
+      "description": "Notifications, custom categories, onboarding, billing config per business"
+    },
+    "/businesses/{businessId}/prompts/{promptId}": {
+      "schema": { "$ref": "#/entities/TenantDocument" },
+      "description": "Versioned AI prompt configs"
+    },
+    "/auditLogs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Immutable audit log entries"
+    }
+  }
+}

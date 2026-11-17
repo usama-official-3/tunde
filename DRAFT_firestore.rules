@@ -1,0 +1,482 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Pillar 4 (Phase 4): Default-deny global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connection probe allowed for startup SDK connectivity verification
+    match /test/connection {
+      allow get: if true;
+    }
+
+    // Phase 3: Reusable hardened global helpers
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        request.auth.token.email == 'shusama100121@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isBusinessOwner(businessId) {
+      return isVerifiedUser() &&
+        exists(/databases/$(database)/documents/businesses/$(businessId)) &&
+        get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerUid == request.auth.uid;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid', 'email', 'displayName', 'businessId', 'role', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'email', 'displayName', 'businessId', 'role', 'createdAt', 'updatedAt']) &&
+        isValidId(data.uid) &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 200 &&
+        data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 120 &&
+        isValidId(data.businessId) &&
+        data.role in ['owner', 'staff', 'admin'] &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidBusiness(data) {
+      return data.keys().hasAll(['id', 'ownerUid', 'name', 'ownerName', 'ownerEmail', 'plan', 'status', 'retentionDays', 'aroValue', 'onboardingCompleted', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['id', 'ownerUid', 'name', 'ownerName', 'ownerEmail', 'plan', 'status', 'retentionDays', 'aroValue', 'onboardingCompleted', 'createdAt', 'updatedAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.ownerUid) &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 160 &&
+        data.ownerName is string && data.ownerName.size() >= 1 && data.ownerName.size() <= 120 &&
+        data.ownerEmail is string && data.ownerEmail.size() >= 3 && data.ownerEmail.size() <= 200 &&
+        data.plan in ['Starter', 'Growth', 'Multi-Shop'] &&
+        data.status in ['Active', 'Suspended', 'Onboarding'] &&
+        data.retentionDays is int && data.retentionDays >= 1 && data.retentionDays <= 3650 &&
+        data.aroValue is number && data.aroValue >= 0 && data.aroValue <= 100000 &&
+        data.onboardingCompleted is bool &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidLocation(data, businessId) {
+      return data.keys().hasAll(['id', 'ownerUid', 'businessId', 'name', 'address', 'city', 'state', 'zip', 'phone', 'aiPhoneNumber', 'timezone', 'bayCount', 'slotDurationMinutes', 'hours', 'holidays', 'isActive', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['id', 'ownerUid', 'businessId', 'name', 'address', 'city', 'state', 'zip', 'phone', 'aiPhoneNumber', 'timezone', 'bayCount', 'slotDurationMinutes', 'hours', 'holidays', 'isActive', 'createdAt', 'updatedAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.ownerUid) &&
+        data.businessId == businessId &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 160 &&
+        data.address is string && data.address.size() <= 240 &&
+        data.city is string && data.city.size() <= 100 &&
+        data.state is string && data.state.size() <= 40 &&
+        data.zip is string && data.zip.size() <= 20 &&
+        data.phone is string && data.phone.size() <= 40 &&
+        data.aiPhoneNumber is string && data.aiPhoneNumber.size() <= 40 &&
+        data.timezone is string && data.timezone.size() <= 80 &&
+        data.bayCount is int && data.bayCount >= 1 && data.bayCount <= 100 &&
+        data.slotDurationMinutes is int && data.slotDurationMinutes >= 10 && data.slotDurationMinutes <= 480 &&
+        data.hours is list && data.hours.size() <= 7 &&
+        data.holidays is list && data.holidays.size() <= 50 &&
+        data.isActive is bool &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidCustomer(data) {
+      return data.keys().hasAll(['id', 'ownerUid', 'locationId', 'name', 'phone', 'email', 'status', 'preferredContact', 'notes', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['id', 'ownerUid', 'locationId', 'name', 'phone', 'email', 'status', 'preferredContact', 'notes', 'createdAt', 'updatedAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.ownerUid) &&
+        isValidId(data.locationId) &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 120 &&
+        data.phone is string && data.phone.size() >= 1 && data.phone.size() <= 40 &&
+        data.email is string && data.email.size() <= 200 &&
+        data.status in ['New', 'Returning'] &&
+        data.preferredContact in ['SMS', 'Email', 'Phone'] &&
+        data.notes is string && data.notes.size() <= 1000 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidVehicle(data) {
+      return data.keys().hasAll(['id', 'ownerUid', 'customerId', 'locationId', 'year', 'make', 'model', 'trim', 'mileage', 'vin', 'serviceHistory', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['id', 'ownerUid', 'customerId', 'locationId', 'year', 'make', 'model', 'trim', 'mileage', 'vin', 'licensePlate', 'serviceHistory', 'createdAt', 'updatedAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.ownerUid) &&
+        isValidId(data.customerId) &&
+        isValidId(data.locationId) &&
+        data.year is int && data.year >= 1900 && data.year <= 2100 &&
+        data.make is string && data.make.size() >= 1 && data.make.size() <= 80 &&
+        data.model is string && data.model.size() >= 1 && data.model.size() <= 80 &&
+        data.trim is string && data.trim.size() <= 80 &&
+        data.mileage is int && data.mileage >= 0 && data.mileage <= 2000000 &&
+        data.vin is string && data.vin.size() <= 40 &&
+        data.serviceHistory is list && data.serviceHistory.size() <= 50 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidAppointment(data) {
+      return data.keys().hasAll(['id', 'ownerUid', 'locationId', 'customerId', 'customerName', 'customerPhone', 'vehicleId', 'vehicleLabel', 'category', 'date', 'time', 'durationMinutes', 'assignedEmployeeId', 'assignedEmployeeName', 'status', 'source', 'internalNotes', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['id', 'ownerUid', 'locationId', 'customerId', 'customerName', 'customerPhone', 'vehicleId', 'vehicleLabel', 'category', 'date', 'time', 'durationMinutes', 'assignedEmployeeId', 'assignedEmployeeName', 'status', 'source', 'internalNotes', 'estimatedValue', 'createdAt', 'updatedAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.ownerUid) &&
+        isValidId(data.locationId) &&
+        isValidId(data.customerId) &&
+        data.customerName is string && data.customerName.size() >= 1 && data.customerName.size() <= 120 &&
+        data.customerPhone is string && data.customerPhone.size() <= 40 &&
+        isValidId(data.vehicleId) &&
+        data.vehicleLabel is string && data.vehicleLabel.size() <= 160 &&
+        data.category is string && data.category.size() >= 1 && data.category.size() <= 100 &&
+        data.date is string && data.date.size() == 10 &&
+        data.time is string && data.time.size() >= 4 && data.time.size() <= 10 &&
+        data.durationMinutes is int && data.durationMinutes >= 15 && data.durationMinutes <= 480 &&
+        data.assignedEmployeeId is string && data.assignedEmployeeId.size() <= 128 &&
+        data.assignedEmployeeName is string && data.assignedEmployeeName.size() <= 120 &&
+        data.status in ['Scheduled', 'Confirmed', 'In Bay', 'Completed', 'Cancelled', 'Rescheduled'] &&
+        data.source in ['AI', 'Manual'] &&
+        data.internalNotes is string && data.internalNotes.size() <= 1500 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidCallRecord(data) {
+      return data.keys().hasAll(['id', 'ownerUid', 'locationId', 'callerName', 'phoneNumber', 'date', 'time', 'durationSeconds', 'status', 'aiReceptionistName', 'outcome', 'callbackStatus', 'recordingAvailable', 'recordingConsent', 'serviceRequest', 'aiSummary', 'transcript', 'recoveredMissedCall', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['id', 'ownerUid', 'locationId', 'callerName', 'phoneNumber', 'customerId', 'vehicleId', 'vehicleSummary', 'date', 'time', 'durationSeconds', 'status', 'aiReceptionistName', 'outcome', 'callbackStatus', 'recordingAvailable', 'recordingSid', 'recordingUrl', 'recordingConsent', 'serviceRequest', 'aiSummary', 'transcript', 'appointmentId', 'callbackId', 'recoveredMissedCall', 'createdAt', 'updatedAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.ownerUid) &&
+        isValidId(data.locationId) &&
+        data.callerName is string && data.callerName.size() >= 1 && data.callerName.size() <= 120 &&
+        data.phoneNumber is string && data.phoneNumber.size() >= 1 && data.phoneNumber.size() <= 40 &&
+        data.date is string && data.date.size() == 10 &&
+        data.time is string && data.time.size() >= 4 && data.time.size() <= 10 &&
+        data.durationSeconds is int && data.durationSeconds >= 0 && data.durationSeconds <= 36000 &&
+        data.status in ['Answered', 'Missed', 'Transferred', 'Failed'] &&
+        data.aiReceptionistName is string && data.aiReceptionistName.size() <= 80 &&
+        data.outcome in ['Booked', 'Rescheduled', 'Cancelled', 'Inquiry Only', 'Callback Required'] &&
+        data.callbackStatus in ['None', 'Pending', 'In Progress', 'Completed'] &&
+        data.recordingAvailable is bool &&
+        data.recordingConsent is string && data.recordingConsent.size() <= 80 &&
+        data.serviceRequest is string && data.serviceRequest.size() <= 240 &&
+        data.aiSummary is string && data.aiSummary.size() <= 2000 &&
+        data.transcript is list && data.transcript.size() <= 200 &&
+        data.recoveredMissedCall is bool &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidCallback(data) {
+      return data.keys().hasAll(['id', 'ownerUid', 'locationId', 'customerName', 'phone', 'vehicleLabel', 'reason', 'aiCallSummary', 'urgency', 'status', 'assignedEmployeeId', 'assignedEmployeeName', 'dueDate', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['id', 'ownerUid', 'locationId', 'customerId', 'customerName', 'phone', 'vehicleLabel', 'reason', 'aiCallSummary', 'urgency', 'status', 'assignedEmployeeId', 'assignedEmployeeName', 'dueDate', 'callId', 'createdAt', 'updatedAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.ownerUid) &&
+        isValidId(data.locationId) &&
+        data.customerName is string && data.customerName.size() >= 1 && data.customerName.size() <= 120 &&
+        data.phone is string && data.phone.size() >= 1 && data.phone.size() <= 40 &&
+        data.vehicleLabel is string && data.vehicleLabel.size() <= 160 &&
+        data.reason is string && data.reason.size() >= 1 && data.reason.size() <= 500 &&
+        data.aiCallSummary is string && data.aiCallSummary.size() <= 1500 &&
+        data.urgency in ['Normal', 'High', 'Urgent'] &&
+        data.status in ['Pending', 'In Progress', 'Completed'] &&
+        data.assignedEmployeeId is string && data.assignedEmployeeId.size() <= 128 &&
+        data.assignedEmployeeName is string && data.assignedEmployeeName.size() <= 120 &&
+        data.dueDate is string && data.dueDate.size() <= 40 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidGenericTenantDoc(data) {
+      return data.keys().hasAll(['id', 'ownerUid', 'payload', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['id', 'ownerUid', 'payload', 'createdAt', 'updatedAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.ownerUid) &&
+        data.payload is map &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidAuditLog(data) {
+      return data.keys().hasAll(['id', 'actorUid', 'actor', 'actorRole', 'action', 'resource', 'businessId', 'businessName', 'accessReason', 'changesSummary', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'actorUid', 'actor', 'actorRole', 'action', 'resource', 'businessId', 'businessName', 'accessReason', 'changesSummary', 'createdAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.actorUid) &&
+        data.actor is string && data.actor.size() >= 1 && data.actor.size() <= 160 &&
+        data.actorRole in ['Super Admin', 'Shop Owner', 'Service Manager'] &&
+        data.action is string && data.action.size() >= 1 && data.action.size() <= 200 &&
+        data.resource is string && data.resource.size() >= 1 && data.resource.size() <= 200 &&
+        isValidId(data.businessId) &&
+        data.businessName is string && data.businessName.size() <= 160 &&
+        data.accessReason is string && data.accessReason.size() <= 500 &&
+        data.changesSummary is string && data.changesSummary.size() <= 1000 &&
+        data.createdAt is timestamp;
+    }
+
+    match /admins/{uid} {
+      allow get: if isVerifiedUser() && (request.auth.uid == uid || isAdmin());
+      allow list, create, update, delete: if false;
+    }
+
+    match /users/{uid} {
+      allow get: if isValidId(uid) && isVerifiedUser() && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isValidId(uid) && isVerifiedUser() &&
+        request.auth.uid == uid &&
+        isValidUserProfile(incoming()) &&
+        incoming().uid == request.auth.uid &&
+        incoming().role != 'admin' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(uid) && isVerifiedUser() &&
+        isValidUserProfile(incoming()) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          isAdmin() || (
+            request.auth.uid == uid &&
+            incoming().role == existing().role &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'businessId', 'updatedAt'])
+          )
+        );
+      allow delete: if false;
+    }
+
+    match /businesses/{businessId} {
+      allow get: if isValidId(businessId) && isVerifiedUser() && (existing().ownerUid == request.auth.uid || isAdmin());
+      allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+      allow create: if isValidId(businessId) && isVerifiedUser() &&
+        isValidBusiness(incoming()) &&
+        incoming().id == businessId &&
+        incoming().ownerUid == request.auth.uid &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(businessId) && isVerifiedUser() &&
+        isValidBusiness(incoming()) &&
+        incoming().id == existing().id &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          isAdmin() || (
+            existing().ownerUid == request.auth.uid &&
+            existing().status != 'Suspended' &&
+            incoming().status != 'Suspended' &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['name', 'ownerName', 'ownerEmail', 'plan', 'status', 'retentionDays', 'aroValue', 'onboardingCompleted', 'updatedAt'])
+          )
+        );
+      allow delete: if isValidId(businessId) && isAdmin();
+
+      match /locations/{locationId} {
+        allow get: if isValidId(locationId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(locationId) && isBusinessOwner(businessId) &&
+          isValidLocation(incoming(), businessId) &&
+          incoming().ownerUid == request.auth.uid &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(locationId) && (isBusinessOwner(businessId) || isAdmin()) &&
+          isValidLocation(incoming(), businessId) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'address', 'city', 'state', 'zip', 'phone', 'aiPhoneNumber', 'timezone', 'bayCount', 'slotDurationMinutes', 'hours', 'holidays', 'isActive', 'updatedAt']);
+        allow delete: if isValidId(locationId) && (isBusinessOwner(businessId) || isAdmin());
+      }
+
+      match /customers/{customerId} {
+        allow get: if isValidId(customerId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(customerId) && isBusinessOwner(businessId) &&
+          isValidCustomer(incoming()) &&
+          incoming().ownerUid == request.auth.uid &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(customerId) && (isBusinessOwner(businessId) || isAdmin()) &&
+          isValidCustomer(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['locationId', 'name', 'phone', 'email', 'status', 'preferredContact', 'notes', 'updatedAt']);
+        allow delete: if isValidId(customerId) && (isBusinessOwner(businessId) || isAdmin());
+      }
+
+      match /vehicles/{vehicleId} {
+        allow get: if isValidId(vehicleId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(vehicleId) && isBusinessOwner(businessId) &&
+          isValidVehicle(incoming()) &&
+          incoming().ownerUid == request.auth.uid &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(vehicleId) && (isBusinessOwner(businessId) || isAdmin()) &&
+          isValidVehicle(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['customerId', 'locationId', 'year', 'make', 'model', 'trim', 'mileage', 'vin', 'licensePlate', 'serviceHistory', 'updatedAt']);
+        allow delete: if isValidId(vehicleId) && (isBusinessOwner(businessId) || isAdmin());
+      }
+
+      match /appointments/{appointmentId} {
+        allow get: if isValidId(appointmentId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(appointmentId) && isBusinessOwner(businessId) &&
+          isValidAppointment(incoming()) &&
+          incoming().ownerUid == request.auth.uid &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(appointmentId) && (isBusinessOwner(businessId) || isAdmin()) &&
+          isValidAppointment(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time && (
+            isAdmin() ||
+            (existing().status != 'Completed' && incoming().diff(existing()).affectedKeys().hasOnly(['locationId', 'customerId', 'customerName', 'customerPhone', 'vehicleId', 'vehicleLabel', 'category', 'date', 'time', 'durationMinutes', 'assignedEmployeeId', 'assignedEmployeeName', 'status', 'internalNotes', 'estimatedValue', 'updatedAt']))
+          );
+        allow delete: if isValidId(appointmentId) && (isBusinessOwner(businessId) || isAdmin());
+      }
+
+      match /calls/{callId} {
+        allow get: if isValidId(callId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(callId) && isBusinessOwner(businessId) &&
+          isValidCallRecord(incoming()) &&
+          incoming().ownerUid == request.auth.uid &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(callId) && (isBusinessOwner(businessId) || isAdmin()) &&
+          isValidCallRecord(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['recordingAvailable', 'recordingConsent', 'transcript', 'callbackStatus', 'outcome', 'aiSummary', 'recordingSid', 'recordingUrl', 'updatedAt']);
+        allow delete: if isValidId(callId) && (isBusinessOwner(businessId) || isAdmin());
+      }
+
+      match /callbacks/{callbackId} {
+        allow get: if isValidId(callbackId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(callbackId) && isBusinessOwner(businessId) &&
+          isValidCallback(incoming()) &&
+          incoming().ownerUid == request.auth.uid &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(callbackId) && (isBusinessOwner(businessId) || isAdmin()) &&
+          isValidCallback(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'urgency', 'assignedEmployeeId', 'assignedEmployeeName', 'dueDate', 'reason', 'aiCallSummary', 'updatedAt']);
+        allow delete: if isValidId(callbackId) && (isBusinessOwner(businessId) || isAdmin());
+      }
+
+      match /agents/{agentId} {
+        allow get: if isValidId(agentId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(agentId) && isBusinessOwner(businessId) &&
+          isValidGenericTenantDoc(incoming()) &&
+          incoming().ownerUid == request.auth.uid &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(agentId) && (isBusinessOwner(businessId) || isAdmin()) &&
+          isValidGenericTenantDoc(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['payload', 'updatedAt']);
+        allow delete: if isValidId(agentId) && (isBusinessOwner(businessId) || isAdmin());
+      }
+
+      match /knowledge/{kbId} {
+        allow get: if isValidId(kbId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(kbId) && isBusinessOwner(businessId) &&
+          isValidGenericTenantDoc(incoming()) &&
+          incoming().ownerUid == request.auth.uid &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(kbId) && (isBusinessOwner(businessId) || isAdmin()) &&
+          isValidGenericTenantDoc(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['payload', 'updatedAt']);
+        allow delete: if isValidId(kbId) && (isBusinessOwner(businessId) || isAdmin());
+      }
+
+      match /team/{memberId} {
+        allow get: if isValidId(memberId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(memberId) && isBusinessOwner(businessId) &&
+          isValidGenericTenantDoc(incoming()) &&
+          incoming().ownerUid == request.auth.uid &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(memberId) && (isBusinessOwner(businessId) || isAdmin()) &&
+          isValidGenericTenantDoc(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['payload', 'updatedAt']);
+        allow delete: if isValidId(memberId) && (isBusinessOwner(businessId) || isAdmin());
+      }
+
+      match /settings/{settingId} {
+        allow get: if isValidId(settingId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(settingId) && isBusinessOwner(businessId) &&
+          isValidGenericTenantDoc(incoming()) &&
+          incoming().ownerUid == request.auth.uid &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(settingId) && (isBusinessOwner(businessId) || isAdmin()) &&
+          isValidGenericTenantDoc(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['payload', 'updatedAt']);
+        allow delete: if isValidId(settingId) && (isBusinessOwner(businessId) || isAdmin());
+      }
+
+      match /prompts/{promptId} {
+        allow get: if isValidId(promptId) && (isBusinessOwner(businessId) || isAdmin());
+        allow list: if isVerifiedUser() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+        allow create: if isValidId(promptId) && isAdmin() &&
+          isValidGenericTenantDoc(incoming()) &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time;
+        allow update: if isValidId(promptId) && isAdmin() &&
+          isValidGenericTenantDoc(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['payload', 'updatedAt']);
+        allow delete: if isValidId(promptId) && isAdmin();
+      }
+    }
+
+    match /auditLogs/{logId} {
+      allow get: if isValidId(logId) && isVerifiedUser() && (isAdmin() || existing().actorUid == request.auth.uid);
+      allow list: if isVerifiedUser() && (isAdmin() || resource.data.actorUid == request.auth.uid);
+      allow create: if isValidId(logId) && isVerifiedUser() &&
+        isValidAuditLog(incoming()) &&
+        incoming().actorUid == request.auth.uid &&
+        incoming().createdAt == request.time;
+      allow update, delete: if false;
+    }
+  }
+}
